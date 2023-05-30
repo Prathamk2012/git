@@ -1,0 +1,44 @@
+HBase terminal
+hbase shell
+list tables:
+	list
+view table:
+	scan "emphive"
+delete table:
+	disable "emphive"
+	drop "emphive"
+create table:
+	create "fligthtable", "info", "sch"
+	put "fligthtable", 1, "info:source", "pune"
+	put "fligthtable", 1, "info:dest", "mumbai"
+	put "fligthtable", 1, "sch:at", "10:00 a.m."
+	put "fligthtable", 1, "sch:dt", "11:00 a.m."
+	put "fligthtable", 1, "sch:delay", 5
+delete particular entry:
+	delete "fligthtable", "1", "sch:delay", 1685438809757
+add new column:
+	alter "fligthtable", NAME => "delay1"
+	desc "fligthtable"
+delete column:
+	alter "fligthtable", NAME => "delay1", METHOD => "delete"
+	desc "fligthtable"
+
+Hive terminal:
+hive
+create external table:
+    > create external table flightnew(fno int, fsrc string, fdest string, schat string, schdt string, schde int)
+    > stored by 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+    > with serdeproperties ("hbase.columns.mapping" = ":key, info:source, info:dest, sch:at, sch:dt, sch:delay")
+    > tblproperties ("hbase.table.name" = "fligthtable");
+list tables:
+	show tables;
+view table:
+	select * from flightnew;
+sum of data:
+	select sum(schde) from flightnew;
+avg of data:
+	select avg(schde) from flightnew;
+create index:
+    >	create index flightindex on table flightnew(schde) 
+    > as 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+    > with deferred rebuild;

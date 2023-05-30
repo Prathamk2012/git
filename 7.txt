@@ -1,0 +1,41 @@
+Hive terminal:
+hive
+create table:
+	create table Customer_info(Cust_ID int ,Cust_Name string ,orderID int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+	create table order_info(OrderID int, ItemID int, Quantity int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+	create table item_info(Item_ID int, Item_Name string, ItemPrice int) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE;
+create 3 csv files named same as table name
+load data:
+	LOAD DATA LOCAL INPATH '/path/to/customer_info.csv' INTO TABLE Customer_info;
+	LOAD DATA LOCAL INPATH '/path/to/order_info.csv' INTO TABLE order_info;
+	LOAD DATA LOCAL INPATH '/path/to/item_info.csv' INTO TABLE item_info;
+view data:
+	select * from Customer_info;
+	select * from order_info;
+	select * from item_info;
+join table:
+	SELECT * FROM Customer_info
+      JOIN order_info ON Customer_info.OrderID = order_info.OrderID
+      JOIN item_info ON order_info.ItemID = item_info.Item_ID;
+create index:
+	CREATE INDEX idx_customer_info ON TABLE Customer_info (Cust_ID) AS 'COMPACT' WITH DEFERRED REBUILD;
+	ALTER INDEX idx_customer_info ON Customer_info REBUILD;
+total and avg:
+	SELECT SUM(ItemPrice * Quantity) AS total_sales, AVG(ItemPrice * Quantity) AS avg_sales FROM order_info JOIN item_info ON order_info.ItemID = item_info.Item_ID;
+max cost order details:
+	SELECT oi.* FROM order_info oi JOIN (SELECT MAX(ItemPrice * Quantity) AS max_value FROM order_info) subq ON (oi.ItemPrice * oi.Quantity) = subq.max_value;
+
+hbase terminal:
+create table:
+	create 'Customer_info', 'Customer'
+
+hive terminal:
+hbase external table:
+	CREATE EXTERNAL TABLE CustomerInfoHBase (Cust_ID INT, Cust_Name STRING, OrderID INT) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,Customer:cust_name,Customer:order_id") TBLPROPERTIES ("hbase.table.name" = "CustomerInfo");
+enter data:
+	insert into customerinfohbase select * from Customer_info;
+
+hbase terminal:
+view data:
+	list
+	scan 'Customer_info'
